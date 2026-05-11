@@ -61,6 +61,52 @@ export const api = {
     return data;
   },
 
+  // --- Backlog & Import ---
+
+  async importSubscribers(subscribers) {
+    const { data, error } = await supabase
+      .from('subscribers')
+      .upsert(subscribers, { onConflict: 'owner_id,email', ignoreDuplicates: true })
+      .select();
+    if (error) throw error;
+    return data;
+  },
+
+  async getBacklogCount() {
+    const { count, error } = await supabase
+      .from('subscribers')
+      .select('*', { count: 'exact', head: true })
+      .eq('intent_status', 'backlog');
+    if (error) throw error;
+    return count;
+  },
+
+  async activateBacklog(limit = 10) {
+    const { data: subs, error: fetchError } = await supabase
+      .from('subscribers')
+      .select('id')
+      .eq('intent_status', 'backlog')
+      .order('created_at', { ascending: true })
+      .limit(limit);
+      
+    if (fetchError) throw fetchError;
+    if (!subs || subs.length === 0) return 0;
+    
+    const ids = subs.map(s => s.id);
+    
+    const { error: updateError } = await supabase
+      .from('subscribers')
+      .update({ 
+        intent_status: 'unknown',
+        next_suggested_action: 'Send Initial Warm-Up Email',
+        next_action_due_date: new Date().toISOString()
+      })
+      .in('id', ids);
+      
+    if (updateError) throw updateError;
+    return ids.length;
+  },
+
   // Event Log
   async getEventLog(subscriberId) {
     const { data, error } = await supabase

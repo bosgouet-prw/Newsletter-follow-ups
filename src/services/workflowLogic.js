@@ -5,7 +5,8 @@ export const INTENT_STATUSES = {
   ACTIVE: 'active',
   INVITED: 'invited',
   BOOKED: 'booked',
-  INACTIVE: 'inactive'
+  INACTIVE: 'inactive',
+  BACKLOG: 'backlog'
 };
 
 export const SIGNAL_TYPES = {

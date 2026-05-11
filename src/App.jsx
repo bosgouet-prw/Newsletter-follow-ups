@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import SubscriberDetail from './pages/SubscriberDetail';
 import SubscribersList from './pages/SubscribersList';
 import TemplatesManager from './pages/TemplatesManager';
+import ImportManager from './pages/ImportManager';
 
 const Login = () => <div className="p-8"><h2>Login Screen</h2><p>Please connect Supabase to login.</p></div>;
 
@@ -30,6 +31,7 @@ const Layout = ({ children }) => {
           <Link to="/">Dashboard</Link>
           <Link to="/subscribers">Subscribers</Link>
           <Link to="/templates">Templates</Link>
+          <Link to="/import">Database & Import</Link>
         </nav>
         {user && (
           <button onClick={signOut} className="sidebar-footer">
@@ -58,6 +60,7 @@ function App() {
                   <Route path="/subscribers" element={<SubscribersList />} />
                   <Route path="/subscribers/:id" element={<SubscriberDetail />} />
                   <Route path="/templates" element={<TemplatesManager />} />
+                  <Route path="/import" element={<ImportManager />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

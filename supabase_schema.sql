@@ -1,5 +1,5 @@
 -- Create enums
-CREATE TYPE intent_status AS ENUM ('unknown', 'warm', 'curious', 'active', 'invited', 'booked', 'inactive');
+CREATE TYPE intent_status AS ENUM ('unknown', 'warm', 'curious', 'active', 'invited', 'booked', 'inactive', 'backlog');
 CREATE TYPE retreat_status AS ENUM ('upcoming', 'active', 'archived');
 CREATE TYPE template_category AS ENUM ('relationship', 'pricing', 'dates', 'faq', 're_engagement', 'booking');
 CREATE TYPE signal_type AS ENUM ('replied_with_interest', 'asked_for_pricing', 'asked_for_dates', 'asked_which_retreat', 'interested_later', 'not_interested_now', 'no_response');
@@ -45,6 +45,7 @@ CREATE TABLE subscribers (
   next_suggested_action TEXT,
   next_action_due_date TIMESTAMPTZ,
   is_unsubscribed BOOLEAN DEFAULT false,
+  source TEXT DEFAULT 'manual',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(owner_id, email)
