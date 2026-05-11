@@ -21,23 +21,23 @@ const ProtectedRoute = ({ children }) => {
 const Layout = ({ children }) => {
   const { user, signOut } = useAuth();
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <aside style={{ width: '250px', backgroundColor: 'var(--color-bg-card)', borderRight: '1px solid var(--color-border)', padding: '2rem', display: 'flex', flexDirection: 'column' }}>
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', marginBottom: '2rem' }}>
+    <div className="app-layout">
+      <aside className="sidebar">
+        <h2 className="sidebar-title">
           Retreat Manager
         </h2>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <nav className="sidebar-nav">
           <Link to="/">Dashboard</Link>
           <Link to="/subscribers">Subscribers</Link>
           <Link to="/templates">Templates</Link>
         </nav>
         {user && (
-          <button onClick={signOut} style={{ marginTop: 'auto', paddingTop: '2rem', color: 'var(--color-text-muted)', textAlign: 'left' }}>
+          <button onClick={signOut} className="sidebar-footer">
             Sign Out
           </button>
         )}
       </aside>
-      <main style={{ flex: 1, padding: '2rem', maxWidth: '1200px' }}>
+      <main className="main-content">
         {children}
       </main>
     </div>

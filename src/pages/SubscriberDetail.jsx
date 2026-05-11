@@ -125,7 +125,7 @@ export default function SubscriberDetail() {
          <LifecycleStepper currentStatus={subscriber.intent_status} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem', alignItems: 'start' }}>
+      <div className="grid-sidebar">
         
         <div className="card" style={{ marginBottom: '2rem', backgroundColor: 'var(--color-bg-subtle)' }}>
           <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Next Suggested Action</h3>

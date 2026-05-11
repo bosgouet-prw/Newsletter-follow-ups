@@ -46,7 +46,7 @@ export default function Dashboard() {
       <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-text-main)' }}>Welcome Back</h1>
       <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem' }}>Here is an overview of your retreat relationships.</p>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div className="grid-2">
         <div className="card">
           <h2 style={{ fontSize: '1.25rem' }}>Requires Attention</h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>

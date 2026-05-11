@@ -42,7 +42,7 @@ export default function TemplatesManager() {
         <button className="btn btn-primary">+ New Template</button>
       </div>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '2rem', alignItems: 'start' }}>
+      <div className="grid-sidebar-left">
         {/* Sidebar */}
         <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
           <div style={{ padding: '1rem', borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-subtle)' }}>
