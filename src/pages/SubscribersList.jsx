@@ -100,17 +100,17 @@ export default function SubscribersList() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--color-bg-subtle)', textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
-              <th onClick={() => requestSort('intent_status')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '15%' }}>
-                Status{getSortIndicator('intent_status')}
-              </th>
               <th onClick={() => requestSort('first_name')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '30%' }}>
                 Name{getSortIndicator('first_name')}
               </th>
-              <th onClick={() => requestSort('email')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                Email{getSortIndicator('email')}
+              <th onClick={() => requestSort('intent_status')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '15%' }}>
+                Status{getSortIndicator('intent_status')}
               </th>
               <th onClick={() => requestSort('last_contacted_at')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '25%' }}>
                 Last Contact{getSortIndicator('last_contacted_at')}
+              </th>
+              <th onClick={() => requestSort('email')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Email{getSortIndicator('email')}
               </th>
             </tr>
           </thead>
@@ -125,6 +125,11 @@ export default function SubscribersList() {
               sortedSubscribers.map(sub => (
                 <tr key={sub.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                   <td style={{ padding: '0.6rem 1rem' }}>
+                    <Link to={`/subscribers/${sub.id}`} style={{ fontWeight: 500, fontSize: '0.95rem' }}>
+                      {sub.first_name} {sub.last_name}
+                    </Link>
+                  </td>
+                  <td style={{ padding: '0.6rem 1rem' }}>
                     <span style={{ 
                       fontSize: '0.7rem', 
                       padding: '0.15rem 0.5rem', 
@@ -137,15 +142,10 @@ export default function SubscribersList() {
                       {sub.intent_status}
                     </span>
                   </td>
-                  <td style={{ padding: '0.6rem 1rem' }}>
-                    <Link to={`/subscribers/${sub.id}`} style={{ fontWeight: 500, fontSize: '0.95rem' }}>
-                      {sub.first_name} {sub.last_name}
-                    </Link>
-                  </td>
-                  <td style={{ padding: '0.6rem 1rem', color: 'var(--color-text-muted)', fontSize: '0.85rem', maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub.email}</td>
                   <td style={{ padding: '0.6rem 1rem', color: 'var(--color-text-light)', fontSize: '0.85rem' }}>
                     {sub.last_contacted_at ? new Date(sub.last_contacted_at).toLocaleDateString() : 'Never'}
                   </td>
+                  <td style={{ padding: '0.6rem 1rem', color: 'var(--color-text-muted)', fontSize: '0.85rem', maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub.email}</td>
                 </tr>
               ))
             )}
