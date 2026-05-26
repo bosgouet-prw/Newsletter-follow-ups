@@ -6,8 +6,7 @@ import SubscriberDetail from './pages/SubscriberDetail';
 import SubscribersList from './pages/SubscribersList';
 import TemplatesManager from './pages/TemplatesManager';
 import ImportManager from './pages/ImportManager';
-
-const Login = () => <div className="p-8"><h2>Login Screen</h2><p>Please connect Supabase to login.</p></div>;
+import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
