@@ -271,39 +271,6 @@ export default function ImportManager() {
             </div>
             {activating && <p style={{ marginTop: '1rem', fontSize: '0.85rem' }}>Activating...</p>}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem', width: '100%' }}>
-              <button 
-                  style={{ 
-                    backgroundColor: 'transparent', 
-                    border: '1px solid #ef4444', 
-                    color: '#ef4444', 
-                    padding: '0.4rem 0.8rem', 
-                    borderRadius: 'var(--radius-sm)', 
-                    cursor: 'pointer',
-                    fontSize: '0.8rem'
-                  }}
-                  onClick={handleClearBacklog}
-                  disabled={activating || backlogCount === 0}
-                >
-                  Clear Backlog (Undo Import)
-              </button>
-
-              <button 
-                  style={{ 
-                    backgroundColor: 'transparent', 
-                    border: '1px solid #ef4444', 
-                    color: '#ef4444', 
-                    padding: '0.4rem 0.8rem', 
-                    borderRadius: 'var(--radius-sm)', 
-                    cursor: 'pointer',
-                    fontSize: '0.8rem'
-                  }}
-                  onClick={handleClearDashboard}
-                  disabled={activating}
-                >
-                  Wipe Dashboard (Clear all active leads)
-              </button>
-            </div>
           </div>
         </div>
       </div>
