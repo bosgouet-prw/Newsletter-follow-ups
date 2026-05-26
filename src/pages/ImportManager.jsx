@@ -47,16 +47,19 @@ export default function ImportManager() {
       for (let i = startIndex; i < rows.length; i++) {
         // Handle basic comma separation (ignoring quotes for simplicity in V1)
         const columns = rows[i].split(',').map(c => c.trim());
-        if (columns.length >= 2) {
+        if (columns.length >= 1) {
           
           let email = '';
           let firstName = '';
           let lastName = '';
           let createdAtStr = null;
 
-          // Dynamically figure out what the columns are
+          // If it's 1 column, it must be the email
+          if (columns.length === 1) {
+            email = columns[0];
+          }
           // If it's a 2-column CSV, it's likely [Timestamp, Email] or [Email, Timestamp]
-          if (columns.length === 2) {
+          else if (columns.length === 2) {
             if (columns[0].includes('@')) {
               email = columns[0];
               createdAtStr = columns[1];
@@ -179,7 +182,7 @@ export default function ImportManager() {
           
           <div style={{ padding: '1.5rem', border: '1px dashed var(--color-border)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-bg-main)', textAlign: 'center' }}>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
-              Format required: <br/><strong>First Name, Last Name, Email</strong>
+              Format required: <br/><strong>Email (Name and Date/Time are optional)</strong>
             </p>
             <input 
               type="file" 
