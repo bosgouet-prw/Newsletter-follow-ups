@@ -93,10 +93,23 @@ export default function ImportManager() {
 
             // Parse the timestamp if we found one
             if (createdAtStr) {
-              const parsedDate = new Date(createdAtStr);
+              let parsedDate = new Date(createdAtStr);
+              if (isNaN(parsedDate.getTime())) {
+                // Try European DD/MM/YYYY
+                const parts = createdAtStr.split(/[ \/:-]/);
+                if (parts.length >= 3) {
+                  parsedDate = new Date(`${parts[1]}/${parts[0]}/${parts[2]} ${parts[3] || '00'}:${parts[4] || '00'}`);
+                }
+              }
               if (!isNaN(parsedDate.getTime())) {
                 payload.created_at = parsedDate.toISOString();
+              } else {
+                // Fallback: Use current time + offset to preserve CSV row order
+                payload.created_at = new Date(Date.now() + (i * 1000)).toISOString();
               }
+            } else {
+              // Fallback: Use current time + offset to preserve CSV row order
+              payload.created_at = new Date(Date.now() + (i * 1000)).toISOString();
             }
             
             subscribers.push(payload);
@@ -130,6 +143,22 @@ export default function ImportManager() {
       setUploading(false);
     };
     reader.readAsText(file);
+  };
+
+  const handleClearBacklog = async () => {
+    if (!window.confirm("Are you sure you want to permanently delete all leads currently waiting in the backlog? This will NOT delete leads on your dashboard.")) {
+      return;
+    }
+    setActivating(true);
+    try {
+      await api.clearBacklog();
+      setMessage("Successfully cleared the backlog.");
+      fetchBacklogCount();
+    } catch (err) {
+      console.error(err);
+      setMessage("Failed to clear backlog.");
+    }
+    setActivating(false);
   };
 
   const handleActivate = async (amount) => {
@@ -210,7 +239,7 @@ export default function ImportManager() {
               Waiting in Backlog
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
               <button 
                 className="btn btn-primary" 
                 onClick={() => handleActivate(10)}
@@ -225,6 +254,23 @@ export default function ImportManager() {
               </button>
             </div>
             {activating && <p style={{ marginTop: '1rem', fontSize: '0.85rem' }}>Activating...</p>}
+
+            <button 
+                style={{ 
+                  marginTop: '1rem', 
+                  backgroundColor: 'transparent', 
+                  border: '1px solid #ef4444', 
+                  color: '#ef4444', 
+                  padding: '0.4rem 0.8rem', 
+                  borderRadius: 'var(--radius-sm)', 
+                  cursor: 'pointer',
+                  fontSize: '0.8rem'
+                }}
+                onClick={handleClearBacklog}
+                disabled={activating || backlogCount === 0}
+              >
+                Clear Backlog (Undo Import)
+            </button>
           </div>
         </div>
       </div>
