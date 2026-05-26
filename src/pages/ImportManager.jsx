@@ -151,7 +151,8 @@ export default function ImportManager() {
       fetchBacklogCount();
     } catch (err) {
       console.error(err);
-      setMessage("Failed to activate batch.");
+      setMessage("Failed to activate batch: " + err.message);
+      alert("Failed to activate batch: " + err.message);
     }
     setActivating(false);
   };
