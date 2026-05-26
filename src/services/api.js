@@ -21,6 +21,7 @@ export const api = {
     const { data, error } = await supabase
       .from('subscribers')
       .select('*, retreats(title)')
+      .neq('intent_status', 'backlog')
       .order('updated_at', { ascending: false });
       
     if (error) throw error;
