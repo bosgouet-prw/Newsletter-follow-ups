@@ -61,7 +61,12 @@ export default function Dashboard() {
                 <li key={sub.id} style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem', paddingTop: '0.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <strong style={{ fontSize: '0.95rem' }}>{sub.first_name} {sub.last_name}</strong>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <strong style={{ fontSize: '0.95rem' }}>
+                          {sub.first_name || sub.last_name ? `${sub.first_name || ''} ${sub.last_name || ''}`.trim() : 'New Lead'}
+                        </strong>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{sub.email}</span>
+                      </div>
                       <a href={`/subscribers/${sub.id}`} style={{ textDecoration: 'none' }}>
                         <span style={{ 
                           fontSize: '0.65rem', 
