@@ -90,6 +90,26 @@ export const api = {
     if (error) throw error;
   },
 
+  async clearDashboard() {
+    // Wipe event logs for dashboard leads first to satisfy foreign key constraints
+    const { data: dashboardSubs } = await supabase
+      .from('subscribers')
+      .select('id')
+      .neq('intent_status', 'backlog');
+      
+    if (dashboardSubs && dashboardSubs.length > 0) {
+      const ids = dashboardSubs.map(s => s.id);
+      await supabase.from('event_log').delete().in('subscriber_id', ids);
+    }
+    
+    // Wipe dashboard leads
+    const { error } = await supabase
+      .from('subscribers')
+      .delete()
+      .neq('intent_status', 'backlog');
+    if (error) throw error;
+  },
+
   async activateBacklog(limit = 10) {
     const { data: subs, error: fetchError } = await supabase
       .from('subscribers')

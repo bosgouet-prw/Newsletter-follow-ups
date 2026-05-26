@@ -161,6 +161,22 @@ export default function ImportManager() {
     setActivating(false);
   };
 
+  const handleClearDashboard = async () => {
+    if (!window.confirm("Are you sure you want to clear your dashboard? This will delete all active leads!")) {
+      return;
+    }
+    setActivating(true);
+    try {
+      await api.clearDashboard();
+      setMessage("Successfully cleared the dashboard.");
+      alert("Dashboard cleared!");
+    } catch (err) {
+      console.error(err);
+      setMessage("Failed to clear dashboard.");
+    }
+    setActivating(false);
+  };
+
   const handleActivate = async (amount) => {
     if (backlogCount === 0) {
       alert("There are 0 leads in the backlog! This means you either haven't imported a CSV yet, or your CSV import failed.");
@@ -255,22 +271,39 @@ export default function ImportManager() {
             </div>
             {activating && <p style={{ marginTop: '1rem', fontSize: '0.85rem' }}>Activating...</p>}
 
-            <button 
-                style={{ 
-                  marginTop: '1rem', 
-                  backgroundColor: 'transparent', 
-                  border: '1px solid #ef4444', 
-                  color: '#ef4444', 
-                  padding: '0.4rem 0.8rem', 
-                  borderRadius: 'var(--radius-sm)', 
-                  cursor: 'pointer',
-                  fontSize: '0.8rem'
-                }}
-                onClick={handleClearBacklog}
-                disabled={activating || backlogCount === 0}
-              >
-                Clear Backlog (Undo Import)
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem', width: '100%' }}>
+              <button 
+                  style={{ 
+                    backgroundColor: 'transparent', 
+                    border: '1px solid #ef4444', 
+                    color: '#ef4444', 
+                    padding: '0.4rem 0.8rem', 
+                    borderRadius: 'var(--radius-sm)', 
+                    cursor: 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                  onClick={handleClearBacklog}
+                  disabled={activating || backlogCount === 0}
+                >
+                  Clear Backlog (Undo Import)
+              </button>
+
+              <button 
+                  style={{ 
+                    backgroundColor: 'transparent', 
+                    border: '1px solid #ef4444', 
+                    color: '#ef4444', 
+                    padding: '0.4rem 0.8rem', 
+                    borderRadius: 'var(--radius-sm)', 
+                    cursor: 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                  onClick={handleClearDashboard}
+                  disabled={activating}
+                >
+                  Wipe Dashboard (Clear all active leads)
+              </button>
+            </div>
           </div>
         </div>
       </div>
