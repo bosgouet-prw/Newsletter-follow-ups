@@ -38,26 +38,65 @@ export default function ImportManager() {
       const csvText = event.target.result;
       const rows = csvText.split('\n').filter(row => row.trim().length > 0);
       
-      // Assume CSV format: First Name, Last Name, Email
-      // Skip header row if it exists
       let startIndex = 0;
-      if (rows[0].toLowerCase().includes('email')) startIndex = 1;
+      if (rows[0].toLowerCase().includes('email') || rows[0].toLowerCase().includes('timestamp')) {
+        startIndex = 1;
+      }
 
       const subscribers = [];
       for (let i = startIndex; i < rows.length; i++) {
         // Handle basic comma separation (ignoring quotes for simplicity in V1)
-        const columns = rows[i].split(',');
-        if (columns.length >= 3) {
-          const email = columns[2].trim();
+        const columns = rows[i].split(',').map(c => c.trim());
+        if (columns.length >= 2) {
+          
+          let email = '';
+          let firstName = '';
+          let lastName = '';
+          let createdAtStr = null;
+
+          // Dynamically figure out what the columns are
+          // If it's a 2-column CSV, it's likely [Timestamp, Email] or [Email, Timestamp]
+          if (columns.length === 2) {
+            if (columns[0].includes('@')) {
+              email = columns[0];
+              createdAtStr = columns[1];
+            } else {
+              email = columns[1];
+              createdAtStr = columns[0];
+            }
+          } 
+          // If it's 3+ columns, find the email and guess the rest
+          else {
+            const emailIndex = columns.findIndex(col => col.includes('@'));
+            if (emailIndex !== -1) {
+              email = columns[emailIndex];
+              // Very basic heuristic for first/last name if email is index 2
+              if (emailIndex === 2) {
+                firstName = columns[0];
+                lastName = columns[1];
+              }
+            }
+          }
+
           if (email && email.includes('@')) {
-            subscribers.push({
+            const payload = {
               owner_id: user?.id || 'mock',
-              first_name: columns[0].trim(),
-              last_name: columns[1].trim(),
+              first_name: firstName,
+              last_name: lastName,
               email: email,
               intent_status: 'backlog',
               source: 'csv_import'
-            });
+            };
+
+            // Parse the timestamp if we found one
+            if (createdAtStr) {
+              const parsedDate = new Date(createdAtStr);
+              if (!isNaN(parsedDate.getTime())) {
+                payload.created_at = parsedDate.toISOString();
+              }
+            }
+            
+            subscribers.push(payload);
           }
         }
       }

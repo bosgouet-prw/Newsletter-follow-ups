@@ -100,13 +100,16 @@ export default function SubscribersList() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--color-bg-subtle)', textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
-              <th onClick={() => requestSort('first_name')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '30%' }}>
+              <th onClick={() => requestSort('first_name')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '25%' }}>
                 Name{getSortIndicator('first_name')}
+              </th>
+              <th onClick={() => requestSort('created_at')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '20%' }}>
+                Date Subscribed{getSortIndicator('created_at')}
               </th>
               <th onClick={() => requestSort('intent_status')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '15%' }}>
                 Status{getSortIndicator('intent_status')}
               </th>
-              <th onClick={() => requestSort('last_contacted_at')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '25%' }}>
+              <th onClick={() => requestSort('last_contacted_at')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', width: '20%' }}>
                 Last Contact{getSortIndicator('last_contacted_at')}
               </th>
               <th onClick={() => requestSort('email')} style={{ padding: '0.5rem 1rem', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: '0.85rem', cursor: 'pointer', maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -126,8 +129,11 @@ export default function SubscribersList() {
                 <tr key={sub.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                   <td style={{ padding: '0.6rem 1rem' }}>
                     <Link to={`/subscribers/${sub.id}`} style={{ fontWeight: 500, fontSize: '0.95rem' }}>
-                      {sub.first_name} {sub.last_name}
+                      {sub.first_name || 'Subscriber'} {sub.last_name || ''}
                     </Link>
+                  </td>
+                  <td style={{ padding: '0.6rem 1rem', color: 'var(--color-text-main)', fontSize: '0.85rem', fontWeight: 500 }}>
+                    {sub.created_at ? new Date(sub.created_at).toLocaleDateString() : 'Unknown'}
                   </td>
                   <td style={{ padding: '0.6rem 1rem' }}>
                     <span style={{ 
