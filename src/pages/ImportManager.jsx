@@ -130,6 +130,12 @@ export default function ImportManager() {
   };
 
   const handleActivate = async (amount) => {
+    if (backlogCount === 0) {
+      alert("There are 0 leads in the backlog! This means you either haven't imported a CSV yet, or your CSV import failed.");
+      return;
+    }
+    if (activating) return;
+
     setActivating(true);
     setMessage('');
     
@@ -205,14 +211,12 @@ export default function ImportManager() {
               <button 
                 className="btn btn-primary" 
                 onClick={() => handleActivate(10)}
-                disabled={activating || backlogCount === 0}
               >
                 Activate 10
               </button>
               <button 
                 className="btn btn-secondary" 
                 onClick={() => handleActivate(20)}
-                disabled={activating || backlogCount === 0}
               >
                 Activate 20
               </button>
