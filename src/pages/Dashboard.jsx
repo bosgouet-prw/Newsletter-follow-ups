@@ -35,11 +35,19 @@ export default function Dashboard() {
 
   const now = new Date();
   
-  // Filter for people who need follow up today or earlier
+  // Filter for people who need follow up today or earlier and sort oldest first
   const dueFollowUps = subscribers.filter(s => {
     if (!s.next_action_due_date) return false;
     return new Date(s.next_action_due_date) <= now;
-  });
+  }).sort((a, b) => new Date(a.next_action_due_date) - new Date(b.next_action_due_date));
+
+  const getUrgencyColor = (dueDateStr) => {
+    if (!dueDateStr) return 'transparent';
+    const daysOverdue = (now - new Date(dueDateStr)) / (1000 * 60 * 60 * 24);
+    if (daysOverdue > 7) return '#ef4444'; // Red for very overdue (> 1 week)
+    if (daysOverdue > 3) return '#f97316'; // Orange for overdue (> 3 days)
+    return 'transparent'; // Default
+  };
 
   return (
     <div>
@@ -58,7 +66,14 @@ export default function Dashboard() {
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {dueFollowUps.map(sub => (
-                <li key={sub.id} style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem', paddingTop: '0.25rem' }}>
+                <li key={sub.id} style={{ 
+                  borderBottom: '1px solid var(--color-border)', 
+                  borderLeft: `4px solid ${getUrgencyColor(sub.next_action_due_date)}`,
+                  paddingBottom: '0.5rem', 
+                  paddingTop: '0.25rem',
+                  paddingLeft: '0.75rem',
+                  marginLeft: '-0.75rem' // Offset the padding so it aligns with other text
+                }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
