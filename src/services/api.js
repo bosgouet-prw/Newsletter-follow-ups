@@ -87,7 +87,7 @@ export const api = {
       .from('subscribers')
       .select('id')
       .eq('intent_status', 'backlog')
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
       .limit(limit);
       
     if (fetchError) throw fetchError;
