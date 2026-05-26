@@ -41,12 +41,12 @@ export default function Dashboard() {
     return new Date(s.next_action_due_date) <= now;
   }).sort((a, b) => new Date(a.next_action_due_date) - new Date(b.next_action_due_date));
 
-  const getUrgencyColor = (dueDateStr) => {
+  const getUrgencyBgColor = (dueDateStr) => {
     if (!dueDateStr) return 'transparent';
     const daysOverdue = (now - new Date(dueDateStr)) / (1000 * 60 * 60 * 24);
-    if (daysOverdue > 7) return '#ef4444'; // Red for very overdue (> 1 week)
-    if (daysOverdue > 3) return '#f97316'; // Orange for overdue (> 3 days)
-    return 'transparent'; // Default
+    if (daysOverdue > 2) return 'rgba(239, 68, 68, 0.15)'; // Light red for > 2 days
+    if (daysOverdue > 1) return 'rgba(249, 115, 22, 0.15)'; // Light orange for > 1 day
+    return 'rgba(34, 197, 94, 0.15)'; // Light green for < 1 day
   };
 
   return (
@@ -68,11 +68,9 @@ export default function Dashboard() {
               {dueFollowUps.map(sub => (
                 <li key={sub.id} style={{ 
                   borderBottom: '1px solid var(--color-border)', 
-                  borderLeft: `4px solid ${getUrgencyColor(sub.next_action_due_date)}`,
-                  paddingBottom: '0.5rem', 
-                  paddingTop: '0.25rem',
-                  paddingLeft: '0.75rem',
-                  marginLeft: '-0.75rem' // Offset the padding so it aligns with other text
+                  backgroundColor: getUrgencyBgColor(sub.next_action_due_date),
+                  padding: '0.75rem',
+                  borderRadius: '6px'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
