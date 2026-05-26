@@ -137,6 +137,7 @@ export default function ImportManager() {
       const activated = Math.min(amount, backlogCount);
       setBacklogCount(backlogCount - activated);
       setMessage(`Mock Activate: Moved ${activated} subscribers into the active pipeline.`);
+      alert(`Moved ${activated} subscribers to your Dashboard!`);
       setActivating(false);
       return;
     }
@@ -144,6 +145,9 @@ export default function ImportManager() {
     try {
       const activatedCount = await api.activateBacklog(amount);
       setMessage(`Successfully moved ${activatedCount} subscribers into the active pipeline.`);
+      if (activatedCount > 0) {
+        alert(`${activatedCount} leads have been activated and sent to the bottom of your Dashboard's 'Requires Attention' list!`);
+      }
       fetchBacklogCount();
     } catch (err) {
       console.error(err);
