@@ -10,6 +10,7 @@ export default function TemplatesManager() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [editedTemplate, setEditedTemplate] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     if (import.meta.env.VITE_SUPABASE_URL === undefined) {
@@ -48,6 +49,11 @@ export default function TemplatesManager() {
     setEditedTemplate({ ...tmpl });
   };
 
+  const showSuccessFeedback = () => {
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2000);
+  };
+
   const handleSaveTemplate = async () => {
     if (!editedTemplate.name || !editedTemplate.subject || !editedTemplate.body) {
       alert("All fields are required.");
@@ -65,6 +71,7 @@ export default function TemplatesManager() {
         setSelectedTemplate(newT);
       }
       setSaving(false);
+      showSuccessFeedback();
       return;
     }
     
@@ -90,6 +97,7 @@ export default function TemplatesManager() {
         setSelectedTemplate(created);
         setEditedTemplate({ ...created });
       }
+      showSuccessFeedback();
     } catch (err) {
       console.error(err);
       alert("Failed to save template");
@@ -161,8 +169,13 @@ export default function TemplatesManager() {
             </div>
             
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <button className="btn btn-primary" onClick={handleSaveTemplate} disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
+              <button 
+                className={`btn ${saveSuccess ? 'btn-secondary' : 'btn-primary'}`} 
+                onClick={handleSaveTemplate} 
+                disabled={saving}
+                style={{ transition: 'all 0.2s', backgroundColor: saveSuccess ? '#10b981' : undefined, color: saveSuccess ? 'white' : undefined }}
+              >
+                {saving ? 'Saving...' : saveSuccess ? 'Saved! ✓' : 'Save Changes'}
               </button>
             </div>
           </div>
