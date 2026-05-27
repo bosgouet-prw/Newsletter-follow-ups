@@ -90,7 +90,8 @@ export default function TemplatesManager() {
           name: editedTemplate.name,
           subject: editedTemplate.subject,
           body: editedTemplate.body,
-          category: 'custom'
+          category: 'custom',
+          owner_id: user.id
         });
         setTemplates([...templates, created]);
         setSelectedTemplate(created);
