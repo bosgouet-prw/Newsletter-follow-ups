@@ -182,6 +182,17 @@ export const api = {
     return data;
   },
 
+  async createTemplate(templateData) {
+    const { data, error } = await supabase
+      .from('templates')
+      .insert(templateData)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    return data;
+  },
+
   // Retreats
   async getRetreats() {
     const { data, error } = await supabase

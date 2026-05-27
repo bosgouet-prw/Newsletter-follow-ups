@@ -36,6 +36,12 @@ export default function TemplatesManager() {
     }
   }, [user]);
 
+  const handleNewClick = () => {
+    setSelectedTemplate(null);
+    setEditedTemplate({ name: '', subject: '', body: '', category: 'custom' });
+    setIsEditing(true);
+  };
+
   const handleEditClick = () => {
     setEditedTemplate({ ...selectedTemplate });
     setIsEditing(true);
@@ -44,6 +50,9 @@ export default function TemplatesManager() {
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditedTemplate(null);
+    if (!selectedTemplate && templates.length > 0) {
+      setSelectedTemplate(templates[0]);
+    }
   };
 
   const handleSaveTemplate = async () => {
@@ -55,25 +64,41 @@ export default function TemplatesManager() {
     
     if (import.meta.env.VITE_SUPABASE_URL === undefined) {
       // Mock save
-      setTemplates(templates.map(t => t.id === editedTemplate.id ? editedTemplate : t));
-      setSelectedTemplate(editedTemplate);
+      if (editedTemplate.id) {
+        setTemplates(templates.map(t => t.id === editedTemplate.id ? editedTemplate : t));
+      } else {
+        const newT = { ...editedTemplate, id: Date.now().toString() };
+        setTemplates([...templates, newT]);
+        setSelectedTemplate(newT);
+      }
       setIsEditing(false);
       setSaving(false);
       return;
     }
     
     try {
-      const updated = await api.updateTemplate(editedTemplate.id, {
-        name: editedTemplate.name,
-        subject: editedTemplate.subject,
-        body: editedTemplate.body
-      });
-      setTemplates(templates.map(t => t.id === updated.id ? updated : t));
-      setSelectedTemplate(updated);
+      if (editedTemplate.id) {
+        const updated = await api.updateTemplate(editedTemplate.id, {
+          name: editedTemplate.name,
+          subject: editedTemplate.subject,
+          body: editedTemplate.body
+        });
+        setTemplates(templates.map(t => t.id === updated.id ? updated : t));
+        setSelectedTemplate(updated);
+      } else {
+        const created = await api.createTemplate({
+          name: editedTemplate.name,
+          subject: editedTemplate.subject,
+          body: editedTemplate.body,
+          category: 'custom'
+        });
+        setTemplates([...templates, created]);
+        setSelectedTemplate(created);
+      }
       setIsEditing(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to update template");
+      alert("Failed to save template");
     }
     setSaving(false);
   };
@@ -86,7 +111,7 @@ export default function TemplatesManager() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-text-main)' }}>Email Templates</h1>
-        <button className="btn btn-primary">+ New Template</button>
+        <button className="btn btn-primary" onClick={handleNewClick} disabled={isEditing}>+ New Template</button>
       </div>
       
       <div className="grid-sidebar-left">
