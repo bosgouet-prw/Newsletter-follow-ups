@@ -38,7 +38,7 @@ export default function TemplatesManager() {
 
   const handleNewClick = () => {
     setSelectedTemplate(null);
-    setEditedTemplate({ name: '', subject: '', body: '', category: 'custom' });
+    setEditedTemplate({ name: '', subject: '', body: '', category: 'relationship' });
     setIsEditing(true);
   };
 
@@ -90,7 +90,7 @@ export default function TemplatesManager() {
           name: editedTemplate.name,
           subject: editedTemplate.subject,
           body: editedTemplate.body,
-          category: 'custom',
+          category: 'relationship',
           owner_id: user.id
         });
         setTemplates([...templates, created]);
