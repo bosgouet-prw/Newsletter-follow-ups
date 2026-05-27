@@ -12,6 +12,7 @@ export default function SubscriberDetail() {
   const [subscriber, setSubscriber] = useState(null);
   const [eventLog, setEventLog] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [templates, setTemplates] = useState([]);
   const [noteText, setNoteText] = useState('');
 
   useEffect(() => {
@@ -26,6 +27,9 @@ export default function SubscriberDetail() {
         { id: 'e1', type: 'note_added', content: 'Met at the farmers market.', created_at: new Date(Date.now() - 5000000).toISOString() },
         { id: 'e2', type: 'signal_captured', signal_type: 'replied_with_interest', created_at: new Date(Date.now() - 1000000).toISOString() }
       ]);
+      setTemplates([
+         { id: '1', name: '01 - Warm Connection', subject: 'Checking in', body: 'Hi {{first_name}},\n\nI noticed you reading our recent newsletters and just wanted to reach out personally to say hello.\n\nWarmly,' }
+      ]);
       setLoading(false);
       return;
     }
@@ -33,10 +37,12 @@ export default function SubscriberDetail() {
     if (user && id) {
       Promise.all([
         api.getSubscriberById(id),
-        api.getEventLog(id)
-      ]).then(([subData, logData]) => {
+        api.getEventLog(id),
+        api.getTemplates()
+      ]).then(([subData, logData, templateData]) => {
         setSubscriber(subData);
         setEventLog(logData);
+        setTemplates(templateData || []);
         setLoading(false);
       }).catch(err => {
         console.error(err);
@@ -103,6 +109,43 @@ export default function SubscriberDetail() {
     }
   };
 
+  const handleDraftEmail = () => {
+    // 1. Try to find the matching template based on the suggested action
+    let targetTemplate = null;
+    const actionStr = (subscriber.next_suggested_action || '').toLowerCase();
+    
+    // Simple heuristic: if the action suggests a template name, try to find it
+    if (actionStr.includes('personal connection')) {
+      targetTemplate = templates.find(t => t.name.toLowerCase().includes('connection') || t.name.includes('01'));
+    } else if (actionStr.includes('pricing')) {
+      targetTemplate = templates.find(t => t.name.toLowerCase().includes('pricing') || t.name.includes('03'));
+    } else if (actionStr.includes('availability') || actionStr.includes('calendar')) {
+      targetTemplate = templates.find(t => t.name.toLowerCase().includes('availability') || t.name.includes('04'));
+    } else if (actionStr.includes('which retreat')) {
+      targetTemplate = templates.find(t => t.name.toLowerCase().includes('which retreat') || t.name.includes('02'));
+    } else if (actionStr.includes('re-engagement')) {
+      targetTemplate = templates.find(t => t.name.toLowerCase().includes('engagement') || t.name.includes('05'));
+    }
+
+    // Fallback to first template or blank if none exist
+    if (!targetTemplate && templates.length > 0) {
+      targetTemplate = templates[0];
+    }
+
+    let subject = targetTemplate ? targetTemplate.subject : '';
+    let body = targetTemplate ? targetTemplate.body : '';
+
+    // 2. Replace placeholders
+    const firstName = subscriber.first_name || 'there';
+    body = body.replace(/\{\{first_name\}\}/g, firstName);
+
+    // 3. Construct mailto link
+    const mailtoLink = `mailto:${subscriber.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    // 4. Open it
+    window.location.href = mailtoLink;
+  };
+
   if (loading) return <div>Loading profile...</div>;
   if (!subscriber) return <div>Subscriber not found.</div>;
 
@@ -131,7 +174,7 @@ export default function SubscriberDetail() {
           <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Next Suggested Action</h3>
           <p style={{ fontWeight: 500, fontSize: '1.1rem' }}>{subscriber.next_suggested_action || "No action currently suggested."}</p>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
-             <button className="btn btn-primary">Draft Email</button>
+             <button className="btn btn-primary" onClick={handleDraftEmail}>Draft Email</button>
              <button className="btn btn-secondary">Mark Done (Skip)</button>
           </div>
         </div>
