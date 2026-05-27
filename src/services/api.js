@@ -170,6 +170,18 @@ export const api = {
     return data;
   },
 
+  async updateTemplate(id, updates) {
+    const { data, error } = await supabase
+      .from('templates')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    return data;
+  },
+
   // Retreats
   async getRetreats() {
     const { data, error } = await supabase

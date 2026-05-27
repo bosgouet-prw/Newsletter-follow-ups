@@ -8,6 +8,9 @@ export default function TemplatesManager() {
   const { user } = useAuth();
   
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTemplate, setEditedTemplate] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (import.meta.env.VITE_SUPABASE_URL === undefined) {
@@ -33,7 +36,51 @@ export default function TemplatesManager() {
     }
   }, [user]);
 
+  const handleEditClick = () => {
+    setEditedTemplate({ ...selectedTemplate });
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedTemplate(null);
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!editedTemplate.name || !editedTemplate.subject || !editedTemplate.body) {
+      alert("All fields are required.");
+      return;
+    }
+    setSaving(true);
+    
+    if (import.meta.env.VITE_SUPABASE_URL === undefined) {
+      // Mock save
+      setTemplates(templates.map(t => t.id === editedTemplate.id ? editedTemplate : t));
+      setSelectedTemplate(editedTemplate);
+      setIsEditing(false);
+      setSaving(false);
+      return;
+    }
+    
+    try {
+      const updated = await api.updateTemplate(editedTemplate.id, {
+        name: editedTemplate.name,
+        subject: editedTemplate.subject,
+        body: editedTemplate.body
+      });
+      setTemplates(templates.map(t => t.id === updated.id ? updated : t));
+      setSelectedTemplate(updated);
+      setIsEditing(false);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update template");
+    }
+    setSaving(false);
+  };
+
   if (loading) return <div>Loading templates...</div>;
+
+  const currentViewTemplate = isEditing ? editedTemplate : selectedTemplate;
 
   return (
     <div>
@@ -52,13 +99,16 @@ export default function TemplatesManager() {
             {templates.map(tmpl => (
               <li 
                 key={tmpl.id} 
-                onClick={() => setSelectedTemplate(tmpl)}
+                onClick={() => {
+                  if (!isEditing) setSelectedTemplate(tmpl);
+                }}
                 style={{ 
                   padding: '1rem', 
                   borderBottom: '1px solid var(--color-border)', 
-                  cursor: 'pointer',
+                  cursor: isEditing ? 'not-allowed' : 'pointer',
                   backgroundColor: selectedTemplate?.id === tmpl.id ? 'var(--color-bg-main)' : 'transparent',
-                  borderLeft: selectedTemplate?.id === tmpl.id ? '4px solid var(--color-accent-primary)' : '4px solid transparent'
+                  borderLeft: selectedTemplate?.id === tmpl.id ? '4px solid var(--color-accent-primary)' : '4px solid transparent',
+                  opacity: isEditing && selectedTemplate?.id !== tmpl.id ? 0.5 : 1
                 }}
               >
                 <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem' }}>{tmpl.name}</strong>
@@ -69,25 +119,47 @@ export default function TemplatesManager() {
         </div>
         
         {/* Editor */}
-        {selectedTemplate ? (
+        {currentViewTemplate ? (
           <div className="card">
             <div style={{ marginBottom: '1.5rem' }}>
               <label>Template Name</label>
-              <input type="text" value={selectedTemplate.name} readOnly style={{ marginBottom: '1rem' }} />
+              <input 
+                type="text" 
+                value={currentViewTemplate.name} 
+                readOnly={!isEditing} 
+                onChange={(e) => isEditing && setEditedTemplate({...editedTemplate, name: e.target.value})}
+                style={{ marginBottom: '1rem', backgroundColor: isEditing ? 'var(--color-bg-main)' : 'var(--color-bg-subtle)' }} 
+              />
               
               <label>Subject Line</label>
-              <input type="text" value={selectedTemplate.subject} readOnly style={{ marginBottom: '1rem' }} />
+              <input 
+                type="text" 
+                value={currentViewTemplate.subject || ''} 
+                readOnly={!isEditing} 
+                onChange={(e) => isEditing && setEditedTemplate({...editedTemplate, subject: e.target.value})}
+                style={{ marginBottom: '1rem', backgroundColor: isEditing ? 'var(--color-bg-main)' : 'var(--color-bg-subtle)' }} 
+              />
               
               <label>Email Body (Supports {'{{first_name}}'})</label>
               <textarea 
-                value={selectedTemplate.body} 
-                readOnly
-                style={{ height: '300px', resize: 'vertical' }}
+                value={currentViewTemplate.body || ''} 
+                readOnly={!isEditing}
+                onChange={(e) => isEditing && setEditedTemplate({...editedTemplate, body: e.target.value})}
+                style={{ height: '300px', resize: 'vertical', backgroundColor: isEditing ? 'var(--color-bg-main)' : 'var(--color-bg-subtle)' }}
               />
             </div>
             
             <div style={{ display: 'flex', gap: '1rem' }}>
-               <button className="btn btn-secondary">Edit Template</button>
+              {isEditing ? (
+                <>
+                  <button className="btn btn-primary" onClick={handleSaveTemplate} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button className="btn btn-secondary" onClick={handleCancelEdit} disabled={saving}>Cancel</button>
+                </>
+              ) : (
+                <button className="btn btn-secondary" onClick={handleEditClick}>Edit Template</button>
+              )}
             </div>
           </div>
         ) : (
