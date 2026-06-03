@@ -109,24 +109,31 @@ export default function Dashboard() {
         </div>
         
         <div className="card">
-          <h2 style={{ fontSize: '1.25rem' }}>Overview</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Total Subscribers</span>
-              <strong>{subscribers.length}</strong>
+          <h2 style={{ fontSize: '1.25rem' }}>Pipeline Overview</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.5rem' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
+              <span>New Leads (Backlog)</span>
+              <strong>{subscribers.filter(s => s.intent_status === 'backlog').length}</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Warm Leads</span>
-              <strong>{subscribers.filter(s => s.intent_status === 'warm').length}</strong>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
+              <span>Welcome Emails Sent</span>
+              <strong>{subscribers.filter(s => s.intent_status !== 'backlog').length}</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Active Inquiries</span>
-              <strong>{subscribers.filter(s => s.intent_status === 'active' || s.intent_status === 'curious').length}</strong>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
+              <span>Replies / Conversations</span>
+              <strong>{subscribers.filter(s => ['warm', 'curious', 'active', 'invited', 'booked'].includes(s.intent_status)).length}</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Booked</span>
-              <strong>{subscribers.filter(s => s.intent_status === 'booked').length}</strong>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
+              <span style={{ color: 'var(--color-accent-primary)' }}>Due for Recontact</span>
+              <strong style={{ color: 'var(--color-accent-primary)' }}>
+                {subscribers.filter(s => s.intent_status === 'unknown' && s.next_action_due_date && new Date(s.next_action_due_date) <= now).length}
+              </strong>
             </div>
+
           </div>
         </div>
       </div>
