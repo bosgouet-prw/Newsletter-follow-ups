@@ -28,14 +28,20 @@ export const api = {
     return data;
   },
 
-  async getAllSubscribers() {
+  async getAllSubscribers(searchQuery = '') {
     // Used for the master list to see absolutely everyone
-    const { data, error } = await supabase
+    let query = supabase
       .from('subscribers')
       .select('*, retreats(title)')
       .order('created_at', { ascending: false })
-      .limit(5000);
+      .limit(1000); // UI performance limit
       
+    if (searchQuery && searchQuery.trim() !== '') {
+      const q = `%${searchQuery.trim()}%`;
+      query = query.or(`email.ilike.${q},first_name.ilike.${q},last_name.ilike.${q}`);
+    }
+      
+    const { data, error } = await query;
     if (error) throw error;
     return data;
   },

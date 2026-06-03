@@ -24,7 +24,8 @@ export default function SubscribersList() {
     }
 
     if (user) {
-      api.getAllSubscribers()
+      setLoading(true);
+      api.getAllSubscribers(searchQuery)
         .then(data => {
           setSubscribers(data);
           setLoading(false);
@@ -36,20 +37,18 @@ export default function SubscribersList() {
     }
   }, [user]);
 
-  if (loading) return <div>Loading subscribers...</div>;
+  const handleSearchClick = () => {
+    if (!user) return;
+    setLoading(true);
+    api.getAllSubscribers(searchQuery).then(data => { setSubscribers(data); setLoading(false); });
+  };
 
-  // 1. Filter and Search
+  if (loading && subscribers.length === 0) return <div>Loading subscribers...</div>;
+
+  // 1. Filter
   const filteredSubscribers = subscribers.filter(sub => {
     // Stage filter
     if (filter !== 'all' && sub.intent_status !== filter) return false;
-    
-    // Search query filter
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      const nameMatch = `${sub.first_name || ''} ${sub.last_name || ''}`.toLowerCase().includes(q);
-      const emailMatch = (sub.email || '').toLowerCase().includes(q);
-      if (!nameMatch && !emailMatch) return false;
-    }
     
     return true;
   });
@@ -116,8 +115,12 @@ export default function SubscribersList() {
               placeholder="Search by name or email..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
               style={{ padding: '0.4rem 0.8rem', width: '250px', border: '1px solid var(--color-border)', borderRadius: '4px' }}
             />
+            <button onClick={handleSearchClick} className="btn-primary" style={{ padding: '0.4rem 1rem' }}>
+              Search DB
+            </button>
           </div>
         </div>
         
