@@ -9,6 +9,7 @@ export default function SubscribersList() {
   const { user } = useAuth();
   
   const [filter, setFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'last_contacted_at', direction: 'desc' });
 
   useEffect(() => {
@@ -16,14 +17,14 @@ export default function SubscribersList() {
       setSubscribers([
         { id: '1', first_name: 'Emma', last_name: 'Woodhouse', email: 'emma@example.com', intent_status: 'warm', last_contacted_at: new Date(Date.now() - 1000000).toISOString() },
         { id: '2', first_name: 'Jane', last_name: 'Fairfax', email: 'jane@example.com', intent_status: 'active', last_contacted_at: new Date(Date.now() - 86400000).toISOString() },
-        { id: '3', first_name: 'Harriet', last_name: 'Smith', email: 'harriet@example.com', intent_status: 'unknown', last_contacted_at: null },
+        { id: '3', first_name: 'Harriet', last_name: 'Smith', email: 'harriet@example.com', intent_status: 'backlog', last_contacted_at: null },
       ]);
       setLoading(false);
       return;
     }
 
     if (user) {
-      api.getSubscribers()
+      api.getAllSubscribers()
         .then(data => {
           setSubscribers(data);
           setLoading(false);
@@ -37,10 +38,20 @@ export default function SubscribersList() {
 
   if (loading) return <div>Loading subscribers...</div>;
 
-  // 1. Filter
+  // 1. Filter and Search
   const filteredSubscribers = subscribers.filter(sub => {
-    if (filter === 'all') return true;
-    return sub.intent_status === filter;
+    // Stage filter
+    if (filter !== 'all' && sub.intent_status !== filter) return false;
+    
+    // Search query filter
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      const nameMatch = `${sub.first_name || ''} ${sub.last_name || ''}`.toLowerCase().includes(q);
+      const emailMatch = (sub.email || '').toLowerCase().includes(q);
+      if (!nameMatch && !emailMatch) return false;
+    }
+    
+    return true;
   });
 
   // 2. Sort
@@ -79,22 +90,35 @@ export default function SubscribersList() {
       </div>
       
       <div className="card" style={{ padding: '0' }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--color-border)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <strong style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Filter by Stage:</strong>
-          <select 
-            value={filter} 
-            onChange={(e) => setFilter(e.target.value)}
-            style={{ width: '200px', padding: '0.4rem' }}
-          >
-            <option value="all">All Subscribers</option>
-            <option value="unknown">Unknown / General</option>
-            <option value="warm">Warm</option>
-            <option value="curious">Curious</option>
-            <option value="active">Active Inquiry</option>
-            <option value="invited">Invited</option>
-            <option value="booked">Booked</option>
-            <option value="inactive">Inactive</option>
-          </select>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--color-border)', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <strong style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Filter by Stage:</strong>
+            <select 
+              value={filter} 
+              onChange={(e) => setFilter(e.target.value)}
+              style={{ width: '200px', padding: '0.4rem' }}
+            >
+              <option value="all">All Subscribers</option>
+              <option value="backlog">Backlog</option>
+              <option value="unknown">Unknown / General</option>
+              <option value="warm">Warm</option>
+              <option value="curious">Curious</option>
+              <option value="active">Active Inquiry</option>
+              <option value="invited">Invited</option>
+              <option value="booked">Booked</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginLeft: 'auto' }}>
+            <input 
+              type="text" 
+              placeholder="Search by name or email..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ padding: '0.4rem 0.8rem', width: '250px', border: '1px solid var(--color-border)', borderRadius: '4px' }}
+            />
+          </div>
         </div>
         
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>

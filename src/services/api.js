@@ -27,6 +27,17 @@ export const api = {
     if (error) throw error;
     return data;
   },
+
+  async getAllSubscribers() {
+    // Used for the master list to see absolutely everyone
+    const { data, error } = await supabase
+      .from('subscribers')
+      .select('*, retreats(title)')
+      .order('created_at', { ascending: false });
+      
+    if (error) throw error;
+    return data;
+  },
   
   async getSubscriberById(id) {
     const { data, error } = await supabase
