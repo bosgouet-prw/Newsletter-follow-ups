@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard() {
   const [subscribers, setSubscribers] = useState([]);
+  const [backlogCount, setBacklogCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   
@@ -14,14 +15,19 @@ export default function Dashboard() {
         { id: '1', first_name: 'Emma', last_name: 'Woodhouse', email: 'emma@example.com', intent_status: 'warm', next_suggested_action: 'Send Personal Connection template', next_action_due_date: new Date().toISOString() },
         { id: '2', first_name: 'Jane', last_name: 'Fairfax', email: 'jane@example.com', intent_status: 'active', next_suggested_action: 'Send Pricing & Details template', next_action_due_date: new Date(Date.now() - 86400000).toISOString() },
       ]);
+      setBacklogCount(0);
       setLoading(false);
       return;
     }
 
     if (user) {
-      api.getSubscribers()
-        .then(data => {
-          setSubscribers(data);
+      Promise.all([
+        api.getSubscribers(),
+        api.getBacklogCount()
+      ])
+        .then(([subsData, bCount]) => {
+          setSubscribers(subsData);
+          setBacklogCount(bCount);
           setLoading(false);
         })
         .catch(err => {
@@ -114,7 +120,7 @@ export default function Dashboard() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
               <span>New Leads (Backlog)</span>
-              <strong>{subscribers.filter(s => s.intent_status === 'backlog').length}</strong>
+              <strong>{backlogCount}</strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.5rem', borderBottom: '1px solid var(--color-border)' }}>
