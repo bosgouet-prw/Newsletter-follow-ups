@@ -109,7 +109,7 @@ export default function SubscriberDetail() {
     }
   };
 
-  const handleDraftEmail = () => {
+  const handleDraftEmail = async () => {
     // 1. Try to find the matching template based on the suggested action
     let targetTemplate = null;
     const actionStr = (subscriber.next_suggested_action || '').toLowerCase();
@@ -144,6 +144,43 @@ export default function SubscriberDetail() {
     
     // 4. Open it
     window.location.href = mailtoLink;
+    
+    // 5. Auto-mark as sent!
+    await handleMarkDone();
+  };
+
+  const handleMarkDone = async () => {
+    try {
+      // 1. Log the event
+      const newEvent = await api.logEvent({
+        owner_id: user.id,
+        subscriber_id: subscriber.id,
+        type: 'email_sent',
+        content: 'Email sent manually or marked as done.'
+      });
+      
+      // 2. Push due date to the future so it leaves the dashboard
+      const now = new Date();
+      const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      
+      const updates = {
+        next_action_due_date: nextWeek.toISOString(),
+        next_suggested_action: 'Wait for reply.',
+        last_contacted_at: now.toISOString()
+      };
+      
+      if (subscriber.intent_status === 'backlog') {
+        updates.intent_status = 'unknown';
+      }
+
+      const updatedSub = await api.updateSubscriber(subscriber.id, updates);
+      
+      setSubscriber(updatedSub);
+      setEventLog([newEvent, ...eventLog]);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to mark as done.");
+    }
   };
 
   if (loading) return <div>Loading profile...</div>;
@@ -175,7 +212,7 @@ export default function SubscriberDetail() {
           <p style={{ fontWeight: 500, fontSize: '1.1rem' }}>{subscriber.next_suggested_action || "No action currently suggested."}</p>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
              <button className="btn btn-primary" onClick={handleDraftEmail}>Draft Email</button>
-             <button className="btn btn-secondary">Mark Done (Skip)</button>
+             <button className="btn btn-secondary" onClick={handleMarkDone}>Mark as Sent (Hide)</button>
           </div>
         </div>
 
